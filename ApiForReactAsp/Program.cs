@@ -16,6 +16,38 @@ builder.Services.AddDbContext<StudentDbContext>(opt =>
     opt.UseSqlServer(conn);
 });
 
+//var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
+// builder = WebApplication.CreateBuilder(args);
+
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy(name: MyAllowSpecificOrigins,
+//                      policy =>
+//                      {
+//                          policy.WithOrigins("http://example.com",
+//                                              "http://www.contoso.com");
+//                      });
+//});
+
+ void ConfigureServices(IServiceCollection services)
+
+
+{
+    services.AddCors(options =>
+    {
+        options.AddPolicy("AllowAll", builder =>
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader());
+    });
+}
+
+ void Configure(IApplicationBuilder app)
+{
+    app.UseCors("AllowAll");
+}
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -26,8 +58,14 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors(builder => builder.AllowAnyOrigin()); // Allow requests from any origin
+app.UseCors(builder => builder.WithOrigins("http://domain.com")); // Allow requests only from domain.com
+app.UseCors(builder => builder.AllowAnyHeader()); // Allow any header in the request
+app.UseCors(builder => builder.AllowAnyMethod()); // Allow any HTTP method in the request
+//app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
+
+
 
 app.MapControllers();
 
